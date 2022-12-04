@@ -5,4 +5,9 @@ declare const enum HelloEnum {
   Hej = 3,
   Hola = 4,
   Ciao = 5,
+  A,
+  B,
+  C,
+  D = 10,
+  E
 }

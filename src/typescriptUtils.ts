@@ -31,7 +31,45 @@ export const getConstEnumsFromTsConfig = (tsconfigPath: string) => {
 
   const constEnums: ts.EnumDeclaration[] = [];
   const visitNode = (node: ts.Node) => {
-    if (node.kind === SyntaxKind.EnumDeclaration && node.modifiers?.some(m => m.kind === SyntaxKind.ConstKeyword)) {
+    if (
+      ts.isEnumDeclaration(node) &&
+      ts.canHaveModifiers(node) &&
+      ts.getModifiers(node)?.some((m) => m.kind === SyntaxKind.ConstKeyword)
+    ) {
+      let lastNum: number | undefined;
+      let newMembers: ts.EnumMember[] = [];
+      let init = false;
+      for (const [i, member] of node.members.entries()) {
+        if (member.initializer) {
+          if (ts.isNumericLiteral(member.initializer)) {
+            lastNum = parseInt(member.initializer.text);
+          } else {
+            lastNum = undefined;
+          }
+          newMembers[i] = member;
+        } else {
+          if (i === 0 && lastNum === undefined) {
+            lastNum = -1;
+          }
+          if (lastNum !== undefined) {
+            const newMember = ts.factory.updateEnumMember(
+              member,
+              member.name,
+              ts.factory.createNumericLiteral(++lastNum)
+            );
+            newMembers[i] = newMember;
+            init = true;
+          }
+        }
+      }
+      if (init) {
+        node = ts.factory.updateEnumDeclaration(
+          node,
+          node.modifiers,
+          node.name,
+          newMembers
+        );
+      }
       constEnums.push(node as ts.EnumDeclaration);
     }
   };
