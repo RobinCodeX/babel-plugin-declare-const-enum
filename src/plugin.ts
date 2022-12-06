@@ -13,7 +13,7 @@ const ambientConstEnums = new Map<string, ts.EnumDeclaration>();
 /**
  * A plugin that rewrites usages of declare const enums with their values.
  */
-const declareConstEnumPlugin = ({ types }: Babel): { visitor: Visitor } => {
+const declareConstEnumPlugin = ({ types }: Babel): { visitor: Visitor<{ opts: { debug: boolean } }> } => {
 
   return {
     visitor: {
@@ -49,7 +49,7 @@ const declareConstEnumPlugin = ({ types }: Babel): { visitor: Visitor } => {
       File: (path) => {
         console.log(path.node.program.sourceFile);
       },
-      MemberExpression: (path) => {
+      MemberExpression: (path,state) => {
         const { object, property } = path.node;
         if (types.isIdentifier(object) && types.isIdentifier(property)) {
           const constEnum = ambientConstEnums.get(object.name);
@@ -73,8 +73,10 @@ const declareConstEnumPlugin = ({ types }: Babel): { visitor: Visitor } => {
               && member.initializer.kind !== SyntaxKind.StringLiteral)) {
             throw new Error(`Found reference to ${object.name}.${property.name} but this is not a numeric or string literal. This is not supported.`);
           }
-
-          console.debug(`Replaced ${object.name}.${property.name} with ${member.initializer.text}`);
+          
+          if (state.opts.debug) {
+            console.debug(`Replaced ${object.name}.${property.name} with ${member.initializer.text}`);
+          }
 
           switch (member.initializer.kind) {
             case SyntaxKind.StringLiteral:
