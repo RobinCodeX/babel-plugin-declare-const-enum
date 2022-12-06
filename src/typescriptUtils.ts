@@ -38,31 +38,40 @@ export const getConstEnumsFromTsConfig = (tsconfigPath: string) => {
     ) {
       let lastNum: number | undefined;
       let newMembers: ts.EnumMember[] = [];
-      let init = false;
+      let hasChange = false;
+      let mustBeInitialized = false
       for (const [i, member] of node.members.entries()) {
         if (member.initializer) {
+          // When a member is assigned a number to get that value.
           if (ts.isNumericLiteral(member.initializer)) {
             lastNum = parseInt(member.initializer.text);
+            // If the member is reassigned a numeric, it will continue to increase automatically.
+            mustBeInitialized = false;
           } else {
+            // If a member is assigned a non-numeric, the automatic increment will be interrupted, and subsequent members will be forced to assign values.
             lastNum = undefined;
+            mustBeInitialized = true;
           }
           newMembers[i] = member;
         } else {
+          if (mustBeInitialized) {
+            throw new Error(`${node.name}.${member.name} is not initialized`)
+          }
+          // The first member will default to zero if it has not been assigned a value.
           if (i === 0 && lastNum === undefined) {
             lastNum = -1;
           }
           if (lastNum !== undefined) {
-            const newMember = ts.factory.updateEnumMember(
+            newMembers[i] = ts.factory.updateEnumMember(
               member,
               member.name,
               ts.factory.createNumericLiteral(++lastNum)
             );
-            newMembers[i] = newMember;
-            init = true;
+            hasChange = true;
           }
         }
       }
-      if (init) {
+      if (hasChange) {
         node = ts.factory.updateEnumDeclaration(
           node,
           node.modifiers,
