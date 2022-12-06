@@ -46,9 +46,6 @@ const declareConstEnumPlugin = ({ types }: Babel): { visitor: Visitor<{ opts: { 
           }
         }
       },
-      File: (path) => {
-        console.log(path.node.program.sourceFile);
-      },
       MemberExpression: (path,state) => {
         const { object, property } = path.node;
         if (types.isIdentifier(object) && types.isIdentifier(property)) {

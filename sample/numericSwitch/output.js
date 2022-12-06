@@ -8,7 +8,8 @@ const GetLength = val => {
     case 8:
     case 10:
     case 11:
-      return "ABCDE";
+    case 12:
+      return "EX";
     default:
       return "Not Three";
   }

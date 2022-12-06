@@ -1,5 +1,5 @@
 
-declare const enum HelloEnum {
+declare const enum HelloEnumObj {
   Hello = 1,
   Hey = 2,
   Hej = 3,

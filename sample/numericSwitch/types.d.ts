@@ -9,5 +9,7 @@ declare const enum HelloEnum {
   B,
   C,
   D = 10,
-  E
+  EX = "EX",
+  E = 11,
+  F
 }

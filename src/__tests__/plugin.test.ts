@@ -9,7 +9,7 @@ const runPlugin = async (file: string) => {
 
   const res = transformFileAsync(file, {
     babelrc: false,
-    plugins: ["./src/plugin.ts"],
+    plugins: [["./src/plugin.ts", {debug: false}]],
     presets: ["@babel/preset-typescript"],
   });
 
@@ -40,4 +40,10 @@ describe("plugin", () => {
         : "";
       expect(transformed!.code).toEqual(expectedOutput);
     });
+
+    it("error enum", async () => {
+        await expect(async () => {
+            await runPlugin(`./sample/errorEnum/test.ts`)
+        }).rejects.toThrowError(/is not initialized$/)
+    })
 });

@@ -55,7 +55,7 @@ export const getConstEnumsFromTsConfig = (tsconfigPath: string) => {
           newMembers[i] = member;
         } else {
           if (mustBeInitialized) {
-            throw new Error(`${node.name}.${member.name} is not initialized`)
+            throw new Error(`${node.name.text}.${ts.isIdentifier(member.name)? member.name.text: undefined} is not initialized`)
           }
           // The first member will default to zero if it has not been assigned a value.
           if (i === 0 && lastNum === undefined) {

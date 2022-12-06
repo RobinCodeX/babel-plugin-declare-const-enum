@@ -8,7 +8,8 @@ const GetLength = (val: HelloEnum) => {
     case HelloEnum.C:
     case HelloEnum.D:
     case HelloEnum.E:
-      return "ABCDE";
+    case HelloEnum.F:
+      return HelloEnum.EX;
     default:
       return "Not Three";
   }
